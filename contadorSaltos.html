@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contador inteligente de saltos de cuerda con múltiples modos">
+    <title>Contador de Saltos Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        /* Animaciones */
+        @keyframes pop {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+            }
+        }
+
+        @keyframes slide-up {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce-in {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .animate-pop {
+            animation: pop 0.3s ease-out;
+        }
+
+        .animate-pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .animate-slide-up {
+            animation: slide-up 0.4s ease-out;
+        }
+
+        .animate-bounce-in {
+            animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        /* Display de conteo principal */
+        .counter-display {
+            font-size: clamp(5rem, 25vw, 10rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        /* Botones táctiles */
+        .btn-touch {
+            min-height: 70px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            transition: all 0.15s;
+            touch-action: manipulation;
+        }
+
+        .btn-touch:active {
+            transform: scale(0.95);
+        }
+
+        /* Botón principal gigante */
+        .btn-mega {
+            min-height: 200px;
+            font-size: 3rem;
+            border-radius: 50%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Métrics cards */
+        .metric-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Tap rhythm indicator */
+        .tap-indicator {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s;
+        }
+
+        .tap-indicator.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Tabs */
+        .tab-active {
+            background: white;
+            border-bottom: 3px solid #10b981;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Input personalizado */
+        input[type="number"] {
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: #1e293b;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Mensajes motivacionales */
+        .motivation-msg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+            z-index: 2000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .motivation-msg.show {
+            animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: #cbd5e1;
+            border-radius: 28px;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+
+        .toggle-switch.active {
+            background: #10b981;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+
+<body class="overflow-x-hidden">
+    <div class="container mx-auto px-4 py-6 max-w-2xl">
+
+        <!-- Header -->
+        <header class="text-center mb-6 animate-slide-up">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">🎯 Contador de Saltos Pro</h1>
+            <p class="text-slate-600">Entrena inteligente, salta más</p>
+        </header>
+
+        <!-- Tabs de modo -->
+        <div class="flex gap-2 mb-6 bg-slate-200/60 rounded-xl p-2">
+            <button id="tabManual"
+                class="flex-1 py-3 rounded-lg font-semibold text-slate-800 transition-all tab-active text-sm">
+                Manual
+            </button>
+            <button id="tabRhythm" class="flex-1 py-3 rounded-lg font-semibold text-slate-500 transition-all text-sm">
+                Ritmo
+            </button>
+            <button id="tabBlocks" class="flex-1 py-3 rounded-lg font-semibold text-slate-500 transition-all text-sm">
+                Bloques
+            </button>
+            <button id="tabHistory" class="flex-1 py-3 rounded-lg font-semibold text-slate-500 transition-all text-sm">
+                📊 Historial
+            </button>
+        </div>
+
+        <!-- Métricas en tiempo real -->
+        <div id="metricsBar" class="grid grid-cols-3 gap-3 mb-6 animate-slide-up">
+            <div class="metric-card rounded-xl p-3 shadow-md text-center">
+                <p class="text-slate-500 text-xs font-semibold mb-1">TOTAL</p>
+                <p id="totalJumps" class="text-2xl font-black text-emerald-600">0</p>
+            </div>
+            <div class="metric-card rounded-xl p-3 shadow-md text-center">
+                <p class="text-slate-500 text-xs font-semibold mb-1">SPM</p>
+                <p id="spmDisplay" class="text-2xl font-black text-blue-600">0</p>
+            </div>
+            <div class="metric-card rounded-xl p-3 shadow-md text-center">
+                <p class="text-slate-500 text-xs font-semibold mb-1">MEJOR</p>
+                <p id="bestRhythm" class="text-2xl font-black text-amber-600">0</p>
+            </div>
+        </div>
+
+        <!-- Panel Modo Manual -->
+        <div id="panelManual" class="animate-slide-up">
+            <!-- Contador principal -->
+            <div class="bg-white rounded-3xl p-8 shadow-xl mb-6 text-center">
+                <p class="text-slate-500 text-sm font-semibold mb-2">SALTOS</p>
+                <div id="counterDisplay" class="counter-display text-slate-800">0</div>
+            </div>
+
+            <!-- Botón +1 gigante -->
+            <div class="flex justify-center mb-6">
+                <button id="addOneBtn"
+                    class="btn-mega bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-2xl hover:shadow-emerald-500/50 transition-all">
+                    <span class="text-6xl">+1</span>
+                </button>
+            </div>
+
+            <!-- Controles rápidos -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <button id="subtractBtn" class="btn-touch bg-slate-300 hover:bg-slate-400 text-slate-700 rounded-xl">
+                    −1
+                </button>
+                <button id="jumpErrorBtn" class="btn-touch bg-amber-500 hover:bg-amber-400 text-white rounded-xl">
+                    😅 Fallé
+                </button>
+                <button id="resetBtn" class="btn-touch bg-red-500 hover:bg-red-400 text-white rounded-xl">
+                    ↻ Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Modo Ritmo -->
+        <div id="panelRhythm" class="hidden">
+            <!-- Área de tap -->
+            <div class="bg-white rounded-3xl p-12 shadow-xl mb-6 text-center relative overflow-hidden">
+                <div class="tap-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    id="tapIndicator"></div>
+
+                <p class="text-slate-500 text-sm font-semibold mb-4">TOCA AL RITMO</p>
+                <div id="rhythmCounter" class="counter-display text-slate-800 relative z-10">0</div>
+                <p class="text-slate-400 text-sm mt-4 relative z-10">Estimado en tiempo real</p>
+            </div>
+
+            <!-- Botón de área de tap -->
+            <button id="tapArea"
+                class="w-full btn-touch bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl mb-4 py-8">
+                👆 TAP AQUÍ AL SALTAR
+            </button>
+
+            <!-- Controles -->
+            <div class="grid grid-cols-2 gap-3">
+                <button id="rhythmResetBtn" class="btn-touch bg-slate-300 hover:bg-slate-400 text-slate-700 rounded-xl">
+                    ↻ Reiniciar
+                </button>
+                <button id="saveRhythmBtn" class="btn-touch bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl">
+                    ✓ Guardar
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Modo Bloques -->
+        <div id="panelBlocks" class="hidden">
+            <!-- Contador -->
+            <div class="bg-white rounded-3xl p-8 shadow-xl mb-6 text-center">
+                <p class="text-slate-500 text-sm font-semibold mb-2">SALTOS TOTALES</p>
+                <div id="blocksCounter" class="counter-display text-slate-800">0</div>
+            </div>
+
+            <!-- Botones de bloques -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button
+                    class="block-btn btn-touch bg-gradient-to-br from-emerald-400 to-emerald-500 text-white rounded-xl"
+                    data-value="10">
+                    +10
+                </button>
+                <button
+                    class="block-btn btn-touch bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl"
+                    data-value="25">
+                    +25
+                </button>
+                <button
+                    class="block-btn btn-touch bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-xl"
+                    data-value="50">
+                    +50
+                </button>
+                <button
+                    class="block-btn btn-touch bg-gradient-to-br from-emerald-700 to-emerald-800 text-white rounded-xl"
+                    data-value="100">
+                    +100
+                </button>
+            </div>
+
+            <!-- Controles -->
+            <div class="grid grid-cols-2 gap-3">
+                <button id="blocksResetBtn" class="btn-touch bg-slate-300 hover:bg-slate-400 text-slate-700 rounded-xl">
+                    ↻ Reiniciar
+                </button>
+                <button id="blocksAdjustBtn" class="btn-touch bg-blue-500 hover:bg-blue-400 text-white rounded-xl">
+                    ✏️ Ajustar
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Historial -->
+        <div id="panelHistory" class="hidden animate-slide-up">
+            <!-- Estadísticas resumen -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div
+                    class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl p-4 text-center shadow-md">
+                    <p class="text-2xl font-bold" id="totalSessions">0</p>
+                    <p class="text-xs opacity-90">Sesiones</p>
+                </div>
+                <div
+                    class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-4 text-center shadow-md">
+                    <p class="text-2xl font-bold" id="totalJumpsHistory">0</p>
+                    <p class="text-xs opacity-90">Saltos</p>
+                </div>
+                <div
+                    class="bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl p-4 text-center shadow-md">
+                    <p class="text-2xl font-bold" id="avgSPM">0</p>
+                    <p class="text-xs opacity-90">SPM medio</p>
+                </div>
+            </div>
+
+            <!-- Lista de sesiones -->
+            <div class="mb-4 flex justify-between items-center">
+                <h3 class="text-slate-700 font-bold text-lg">Sesiones recientes</h3>
+                <button id="clearHistory"
+                    class="text-red-500 text-sm font-semibold hover:text-red-600 transition-colors">
+                    🗑️ Limpiar
+                </button>
+            </div>
+
+            <div id="historyList" class="space-y-3 max-h-96 overflow-y-auto">
+                <!-- Las sesiones se agregarán dinámicamente aquí -->
+            </div>
+
+            <!-- Mensaje cuando no hay historial -->
+            <div id="emptyHistory" class="text-center py-12">
+                <div class="text-6xl mb-4">📝</div>
+                <p class="text-slate-500 font-semibold mb-2">No hay sesiones aún</p>
+                <p class="text-slate-400 text-sm">Completa tu primer entrenamiento para ver tu progreso</p>
+            </div>
+        </div>
+
+        <!-- Configuración -->
+        <div id="settingsPanel" class="bg-white rounded-xl p-5 mt-6 shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <p class="text-slate-800 font-semibold">Sonido</p>
+                    <p class="text-slate-500 text-sm">Alertas de hitos</p>
+                </div>
+                <div id="soundToggle" class="toggle-switch active">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <p class="text-slate-800 font-semibold">Vibración</p>
+                    <p class="text-slate-500 text-sm">Feedback háptico</p>
+                </div>
+                <div id="vibrationToggle" class="toggle-switch active">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-slate-800 font-semibold">Mensajes motivacionales</p>
+                    <p class="text-slate-500 text-sm">Cada 50 y 100 saltos</p>
+                </div>
+                <div id="motivationToggle" class="toggle-switch active">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-6 text-slate-500 text-sm">
+            <p>💪 Cada salto cuenta. Sigue adelante.</p>
+        </div>
+    </div>
+
+    <!-- Modal de ajuste -->
+    <div id="adjustModal" class="modal">
+        <div class="bg-white rounded-2xl p-8 mx-4 max-w-md w-full shadow-2xl animate-bounce-in">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 text-center">Ajustar contador</h3>
+            <p class="text-slate-600 text-center mb-6">Edita el número final de saltos</p>
+
+            <input type="number" id="adjustInput" min="0" class="w-full mb-6" value="0">
+
+            <div class="grid grid-cols-2 gap-3">
+                <button id="cancelAdjust" class="btn-touch bg-slate-300 hover:bg-slate-400 text-slate-700 rounded-xl">
+                    Cancelar
+                </button>
+                <button id="confirmAdjust" class="btn-touch bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje motivacional flotante -->
+    <div id="motivationMsg" class="motivation-msg"></div>
+
+    <script>
+        // ==========================================
+        // CLASE PRINCIPAL DEL CONTADOR
+        // ==========================================
+        class JumpCounter {
+            constructor() {
+                // Estado general
+                this.mode = 'manual'; // 'manual', 'rhythm', 'blocks', 'history'
+                this.count = 0;
+                this.sessionStartTime = null;
+                this.isActive = false;
+
+                // Métricas
+                this.spm = 0; // Saltos por minuto actual
+                this.bestSPM = 0; // Mejor SPM de la sesión
+                this.lastJumpTime = null;
+                this.recentJumps = []; // Últimos 10 saltos con timestamp
+
+                // Modo ritmo
+                this.rhythmTaps = [];
+                this.rhythmStartTime = null;
+                this.rhythmEstimate = 0;
+
+                // Configuración
+                this.settings = {
+                    sound: true,
+                    vibration: true,
+                    motivation: true
+                };
+
+                // Historial
+                this.history = this.loadHistory();
+
+                // Referencias al DOM
+                this.elements = {
+                    // Tabs
+                    tabManual: document.getElementById('tabManual'),
+                    tabRhythm: document.getElementById('tabRhythm'),
+                    tabBlocks: document.getElementById('tabBlocks'),
+                    tabHistory: document.getElementById('tabHistory'),
+
+                    // Paneles
+                    panelManual: document.getElementById('panelManual'),
+                    panelRhythm: document.getElementById('panelRhythm'),
+                    panelBlocks: document.getElementById('panelBlocks'),
+                    panelHistory: document.getElementById('panelHistory'),
+                    metricsBar: document.getElementById('metricsBar'),
+                    settingsPanel: document.getElementById('settingsPanel'),
+
+                    // Displays
+                    counterDisplay: document.getElementById('counterDisplay'),
+                    rhythmCounter: document.getElementById('rhythmCounter'),
+                    blocksCounter: document.getElementById('blocksCounter'),
+                    totalJumps: document.getElementById('totalJumps'),
+                    spmDisplay: document.getElementById('spmDisplay'),
+                    bestRhythm: document.getElementById('bestRhythm'),
+
+                    // Botones modo manual
+                    addOneBtn: document.getElementById('addOneBtn'),
+                    subtractBtn: document.getElementById('subtractBtn'),
+                    jumpErrorBtn: document.getElementById('jumpErrorBtn'),
+                    resetBtn: document.getElementById('resetBtn'),
+
+                    // Modo ritmo
+                    tapArea: document.getElementById('tapArea'),
+                    tapIndicator: document.getElementById('tapIndicator'),
+                    rhythmResetBtn: document.getElementById('rhythmResetBtn'),
+                    saveRhythmBtn: document.getElementById('saveRhythmBtn'),
+
+                    // Modo bloques
+                    blocksResetBtn: document.getElementById('blocksResetBtn'),
+                    blocksAdjustBtn: document.getElementById('blocksAdjustBtn'),
+
+                    // Historial
+                    historyList: document.getElementById('historyList'),
+                    emptyHistory: document.getElementById('emptyHistory'),
+                    totalSessions: document.getElementById('totalSessions'),
+                    totalJumpsHistory: document.getElementById('totalJumpsHistory'),
+                    avgSPM: document.getElementById('avgSPM'),
+                    clearHistory: document.getElementById('clearHistory'),
+
+                    // Modal
+                    adjustModal: document.getElementById('adjustModal'),
+                    adjustInput: document.getElementById('adjustInput'),
+                    cancelAdjust: document.getElementById('cancelAdjust'),
+                    confirmAdjust: document.getElementById('confirmAdjust'),
+
+                    // Toggles
+                    soundToggle: document.getElementById('soundToggle'),
+                    vibrationToggle: document.getElementById('vibrationToggle'),
+                    motivationToggle: document.getElementById('motivationToggle'),
+
+                    // Motivación
+                    motivationMsg: document.getElementById('motivationMsg')
+                };
+
+                this.initEventListeners();
+            }
+
+            // ==========================================
+            // INICIALIZACIÓN
+            // ==========================================
+            initEventListeners() {
+                // Tabs
+                this.elements.tabManual.addEventListener('click', () => this.switchMode('manual'));
+                this.elements.tabRhythm.addEventListener('click', () => this.switchMode('rhythm'));
+                this.elements.tabBlocks.addEventListener('click', () => this.switchMode('blocks'));
+                this.elements.tabHistory.addEventListener('click', () => this.switchMode('history'));
+
+                // Modo manual
+                this.elements.addOneBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.addJump(1);
+                });
+                this.elements.subtractBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.subtractJump(1);
+                });
+                this.elements.jumpErrorBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.handleJumpError();
+                });
+                this.elements.resetBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.resetCounter();
+                });
+
+                // Modo ritmo
+                this.elements.tapArea.addEventListener('click', () => this.handleRhythmTap());
+                this.elements.rhythmResetBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.resetRhythm();
+                });
+                this.elements.saveRhythmBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.saveRhythm();
+                });
+
+                // Modo bloques
+                document.querySelectorAll('.block-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const value = parseInt(e.target.dataset.value);
+                        this.addJump(value);
+                    });
+                });
+                this.elements.blocksResetBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.resetCounter();
+                });
+                this.elements.blocksAdjustBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.openAdjustModal();
+                });
+
+                // Historial
+                this.elements.clearHistory.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.clearAllHistory();
+                });
+
+                // Modal
+                this.elements.cancelAdjust.addEventListener('click', () => this.closeAdjustModal());
+                this.elements.confirmAdjust.addEventListener('click', () => this.confirmAdjust());
+
+                // Toggles
+                this.elements.soundToggle.addEventListener('click', () => {
+                    this.settings.sound = !this.settings.sound;
+                    this.elements.soundToggle.classList.toggle('active');
+                });
+
+                this.elements.vibrationToggle.addEventListener('click', () => {
+                    this.settings.vibration = !this.settings.vibration;
+                    this.elements.vibrationToggle.classList.toggle('active');
+                });
+
+                this.elements.motivationToggle.addEventListener('click', () => {
+                    this.settings.motivation = !this.settings.motivation;
+                    this.elements.motivationToggle.classList.toggle('active');
+                });
+            }
+
+            // ==========================================
+            // CAMBIO DE MODO
+            // ==========================================
+            switchMode(mode) {
+                this.mode = mode;
+
+                // Actualizar tabs
+                [this.elements.tabManual, this.elements.tabRhythm, this.elements.tabBlocks, this.elements.tabHistory].forEach(tab => {
+                    tab.classList.remove('tab-active', 'text-slate-800');
+                    tab.classList.add('text-slate-500');
+                });
+
+                // Ocultar todos los paneles
+                this.elements.panelManual.classList.add('hidden');
+                this.elements.panelRhythm.classList.add('hidden');
+                this.elements.panelBlocks.classList.add('hidden');
+                this.elements.panelHistory.classList.add('hidden');
+
+                // Mostrar panel correspondiente
+                if (mode === 'manual') {
+                    this.elements.tabManual.classList.add('tab-active', 'text-slate-800');
+                    this.elements.tabManual.classList.remove('text-slate-500');
+                    this.elements.panelManual.classList.remove('hidden');
+                    this.elements.metricsBar.classList.remove('hidden');
+                    this.elements.settingsPanel.classList.remove('hidden');
+                } else if (mode === 'rhythm') {
+                    this.elements.tabRhythm.classList.add('tab-active', 'text-slate-800');
+                    this.elements.tabRhythm.classList.remove('text-slate-500');
+                    this.elements.panelRhythm.classList.remove('hidden');
+                    this.elements.metricsBar.classList.remove('hidden');
+                    this.elements.settingsPanel.classList.remove('hidden');
+                } else if (mode === 'blocks') {
+                    this.elements.tabBlocks.classList.add('tab-active', 'text-slate-800');
+                    this.elements.tabBlocks.classList.remove('text-slate-500');
+                    this.elements.panelBlocks.classList.remove('hidden');
+                    this.elements.metricsBar.classList.remove('hidden');
+                    this.elements.settingsPanel.classList.remove('hidden');
+                } else if (mode === 'history') {
+                    this.elements.tabHistory.classList.add('tab-active', 'text-slate-800');
+                    this.elements.tabHistory.classList.remove('text-slate-500');
+                    this.elements.panelHistory.classList.remove('hidden');
+                    this.elements.metricsBar.classList.add('hidden');
+                    this.elements.settingsPanel.classList.add('hidden');
+                    this.renderHistory();
+                }
+            }
+
+            // ==========================================
+            // CONTADOR MANUAL Y BLOQUES
+            // ==========================================
+            addJump(amount = 1) {
+                this.count += amount;
+                this.updateDisplay();
+                this.calculateSPM();
+                this.checkMilestones();
+                this.triggerFeedback();
+                this.animateButton();
+
+                if (!this.isActive) {
+                    this.isActive = true;
+                    this.sessionStartTime = Date.now();
+                }
+
+                this.lastJumpTime = Date.now();
+            }
+
+            subtractJump(amount = 1) {
+                this.count = Math.max(0, this.count - amount);
+                this.updateDisplay();
+                this.triggerFeedback();
+            }
+
+            handleJumpError() {
+                // Resta un pequeño porcentaje (5%) o mínimo 1
+                const reduction = Math.max(1, Math.floor(this.count * 0.05));
+                this.count = Math.max(0, this.count - reduction);
+                this.updateDisplay();
+                this.showMotivation('¡Sin problema! 💪');
+                this.triggerFeedback();
+            }
+
+            resetCounter() {
+                console.log('Reset button clicked, current count:', this.count);
+
+                if (this.count > 0) {
+                    const confirmed = confirm('¿Reiniciar el contador? Los datos se guardarán en el historial.');
+                    console.log('User confirmed:', confirmed);
+
+                    if (confirmed) {
+                        this.saveSession();
+                        this.count = 0;
+                        this.spm = 0;
+                        this.bestSPM = 0;
+                        this.recentJumps = [];
+                        this.sessionStartTime = null;
+                        this.isActive = false;
+                        this.updateDisplay();
+                        this.elements.spmDisplay.textContent = '0';
+                        this.elements.bestRhythm.textContent = '0';
+                        this.showMotivation('¡Guardado! 🎉');
+                    }
+                } else {
+                    console.log('Count is 0, resetting without confirmation');
+                    this.count = 0;
+                    this.spm = 0;
+                    this.bestSPM = 0;
+                    this.recentJumps = [];
+                    this.sessionStartTime = null;
+                    this.isActive = false;
+                    this.updateDisplay();
+                    this.elements.spmDisplay.textContent = '0';
+                    this.elements.bestRhythm.textContent = '0';
+                }
+            }
+
+            // ==========================================
+            // MODO RITMO
+            // ==========================================
+            handleRhythmTap() {
+                const now = Date.now();
+
+                if (!this.rhythmStartTime) {
+                    this.rhythmStartTime = now;
+                }
+
+                this.rhythmTaps.push(now);
+
+                // Animar indicador
+                this.elements.tapIndicator.classList.add('active');
+                setTimeout(() => {
+                    this.elements.tapIndicator.classList.remove('active');
+                }, 200);
+
+                // Calcular estimación
+                if (this.rhythmTaps.length > 1) {
+                    const elapsed = (now - this.rhythmStartTime) / 1000; // segundos
+                    const tapsPerSecond = this.rhythmTaps.length / elapsed;
+                    const estimatedTotal = Math.round(tapsPerSecond * elapsed);
+
+                    this.rhythmEstimate = estimatedTotal;
+                    this.elements.rhythmCounter.textContent = estimatedTotal;
+
+                    // Calcular SPM
+                    const spm = Math.round(tapsPerSecond * 60);
+                    this.spm = spm;
+                    this.elements.spmDisplay.textContent = spm;
+
+                    if (spm > this.bestSPM) {
+                        this.bestSPM = spm;
+                        this.elements.bestRhythm.textContent = spm;
+                    }
+                }
+
+                this.elements.totalJumps.textContent = this.rhythmEstimate;
+                this.triggerFeedback();
+            }
+
+            resetRhythm() {
+                if (this.rhythmTaps.length > 0 && confirm('¿Reiniciar el contador de ritmo?')) {
+                    this.rhythmTaps = [];
+                    this.rhythmStartTime = null;
+                    this.rhythmEstimate = 0;
+                    this.elements.rhythmCounter.textContent = '0';
+                    this.elements.totalJumps.textContent = '0';
+                    this.spm = 0;
+                    this.elements.spmDisplay.textContent = '0';
+                }
+            }
+
+            saveRhythm() {
+                if (this.rhythmEstimate > 0) {
+                    this.count = this.rhythmEstimate;
+                    this.saveSession();
+                    this.showMotivation('¡Guardado! 🎉');
+                    setTimeout(() => {
+                        this.resetRhythm();
+                    }, 1500);
+                }
+            }
+
+            // ==========================================
+            // MÉTRICAS Y CÁLCULOS
+            // ==========================================
+            calculateSPM() {
+                if (!this.sessionStartTime) return;
+
+                const elapsed = (Date.now() - this.sessionStartTime) / 1000 / 60; // minutos
+                if (elapsed > 0) {
+                    this.spm = Math.round(this.count / elapsed);
+                    this.elements.spmDisplay.textContent = this.spm;
+
+                    if (this.spm > this.bestSPM) {
+                        this.bestSPM = this.spm;
+                        this.elements.bestRhythm.textContent = this.spm;
+                    }
+                }
+            }
+
+            checkMilestones() {
+                if (!this.settings.motivation) return;
+
+                const milestones = [50, 100, 150, 200, 250, 300, 400, 500];
+
+                if (milestones.includes(this.count)) {
+                    const messages = [
+                        '¡Excelente! 🔥',
+                        '¡Sigue así! 💪',
+                        '¡Imparable! ⚡',
+                        '¡Increíble! 🌟',
+                        '¡Eres una máquina! 🚀',
+                        '¡Bestial! 🦁',
+                        '¡Sin límites! 🏆',
+                        '¡Épico! ⭐'
+                    ];
+                    const msg = messages[Math.floor(Math.random() * messages.length)];
+                    this.showMotivation(msg);
+                    this.triggerMilestoneVibration();
+                }
+            }
+
+            showMotivation(message) {
+                const msgEl = this.elements.motivationMsg;
+                msgEl.textContent = message;
+                msgEl.classList.add('show');
+
+                setTimeout(() => {
+                    msgEl.classList.remove('show');
+                }, 2000);
+            }
+
+            // ==========================================
+            // ACTUALIZACIÓN DE DISPLAYS
+            // ==========================================
+            updateDisplay() {
+                this.elements.counterDisplay.textContent = this.count;
+                this.elements.blocksCounter.textContent = this.count;
+                this.elements.totalJumps.textContent = this.count;
+            }
+
+            animateButton() {
+                if (this.mode === 'manual') {
+                    this.elements.addOneBtn.classList.add('animate-pop');
+                    setTimeout(() => {
+                        this.elements.addOneBtn.classList.remove('animate-pop');
+                    }, 300);
+                }
+            }
+
+            // ==========================================
+            // MODAL DE AJUSTE
+            // ==========================================
+            openAdjustModal() {
+                this.elements.adjustInput.value = this.count;
+                this.elements.adjustModal.classList.add('active');
+            }
+
+            closeAdjustModal() {
+                this.elements.adjustModal.classList.remove('active');
+            }
+
+            confirmAdjust() {
+                const newValue = parseInt(this.elements.adjustInput.value);
+                if (!isNaN(newValue) && newValue >= 0) {
+                    this.count = newValue;
+                    this.updateDisplay();
+                    this.closeAdjustModal();
+                    this.showMotivation('¡Ajustado! ✓');
+                }
+            }
+
+            // ==========================================
+            // FEEDBACK (SONIDO Y VIBRACIÓN)
+            // ==========================================
+            triggerFeedback() {
+                if (this.settings.vibration && 'vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+
+                if (this.settings.sound) {
+                    this.playClickSound();
+                }
+            }
+
+            triggerMilestoneVibration() {
+                if (this.settings.vibration && 'vibrate' in navigator) {
+                    navigator.vibrate([100, 50, 100, 50, 100]);
+                }
+
+                if (this.settings.sound) {
+                    this.playMilestoneSound();
+                }
+            }
+
+            playClickSound() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 600;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.05);
+            }
+
+            playMilestoneSound() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                [600, 800, 1000].forEach((freq, i) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+
+                    const startTime = audioContext.currentTime + (i * 0.1);
+                    gainNode.gain.setValueAtTime(0.2, startTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
+
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + 0.15);
+                });
+            }
+
+            // ==========================================
+            // HISTORIAL Y PERSISTENCIA
+            // ==========================================
+            saveSession() {
+                if (this.count === 0) return;
+
+                const session = {
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    mode: this.mode,
+                    jumps: this.count,
+                    spm: this.spm,
+                    bestSPM: this.bestSPM,
+                    duration: this.sessionStartTime ?
+                        Math.round((Date.now() - this.sessionStartTime) / 1000) : 0
+                };
+
+                this.history.unshift(session);
+
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+
+                this.saveHistory();
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('jumpCounterHistory');
+                    return saved ? JSON.parse(saved) : [];
+                } catch (e) {
+                    console.error('Error loading history:', e);
+                    return [];
+                }
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('jumpCounterHistory', JSON.stringify(this.history));
+                } catch (e) {
+                    console.error('Error saving history:', e);
+                }
+            }
+
+            clearAllHistory() {
+                if (confirm('¿Estás seguro de que quieres eliminar todo el historial?')) {
+                    this.history = [];
+                    this.saveHistory();
+                    this.renderHistory();
+                }
+            }
+
+            deleteSession(id) {
+                this.history = this.history.filter(s => s.id !== id);
+                this.saveHistory();
+                this.renderHistory();
+            }
+
+            renderHistory() {
+                const stats = this.calculateHistoryStats();
+
+                // Actualizar estadísticas
+                this.elements.totalSessions.textContent = stats.totalSessions;
+                this.elements.totalJumpsHistory.textContent = stats.totalJumps;
+                this.elements.avgSPM.textContent = stats.avgSPM;
+
+                // Renderizar lista
+                if (this.history.length === 0) {
+                    this.elements.emptyHistory.classList.remove('hidden');
+                    this.elements.historyList.innerHTML = '';
+                    return;
+                }
+
+                this.elements.emptyHistory.classList.add('hidden');
+
+                this.elements.historyList.innerHTML = this.history.map(session => {
+                    const date = new Date(session.date);
+                    const dateStr = this.formatDate(date);
+                    const timeStr = this.formatTime(date);
+                    const modeStr = session.mode === 'manual' ? 'Manual' :
+                        session.mode === 'rhythm' ? 'Ritmo' : 'Bloques';
+                    const modeColor = session.mode === 'manual' ? 'bg-emerald-100 text-emerald-700' :
+                        session.mode === 'rhythm' ? 'bg-blue-100 text-blue-700' :
+                            'bg-amber-100 text-amber-700';
+
+                    return `
+                        <div class="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <span class="${modeColor} text-xs font-bold px-3 py-1 rounded-full">${modeStr}</span>
+                                    <p class="text-slate-600 text-sm mt-2">${dateStr} • ${timeStr}</p>
+                                </div>
+                                <button onclick="counter.deleteSession(${session.id})" class="text-slate-400 hover:text-red-500 transition-colors">
+                                    ✕
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 mt-3">
+                                <div>
+                                    <p class="text-slate-500 text-xs">Saltos</p>
+                                    <p class="text-slate-800 font-bold text-lg">${session.jumps}</p>
+                                </div>
+                                <div>
+                                    <p class="text-slate-500 text-xs">SPM</p>
+                                    <p class="text-blue-600 font-bold text-lg">${session.spm}</p>
+                                </div>
+                                <div>
+                                    <p class="text-slate-500 text-xs">Mejor</p>
+                                    <p class="text-amber-600 font-bold text-lg">${session.bestSPM}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            calculateHistoryStats() {
+                const totalSessions = this.history.length;
+                const totalJumps = this.history.reduce((sum, s) => sum + s.jumps, 0);
+                const avgSPM = totalSessions > 0 ?
+                    Math.round(this.history.reduce((sum, s) => sum + s.spm, 0) / totalSessions) : 0;
+
+                return { totalSessions, totalJumps, avgSPM };
+            }
+
+            formatDate(date) {
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                if (date.toDateString() === today.toDateString()) {
+                    return 'Hoy';
+                } else if (date.toDateString() === yesterday.toDateString()) {
+                    return 'Ayer';
+                } else {
+                    return date.toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'short'
+                    });
+                }
+            }
+
+            formatTime(date) {
+                return date.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            // ==========================================
+            // COMPARACIÓN CON SESIÓN ANTERIOR
+            // ==========================================
+            compareWithPrevious() {
+                if (this.history.length === 0) return null;
+
+                const previous = this.history[0];
+                const improvement = this.count - previous.jumps;
+
+                return {
+                    previous: previous.jumps,
+                    current: this.count,
+                    improvement: improvement,
+                    percentage: previous.jumps > 0 ?
+                        Math.round((improvement / previous.jumps) * 100) : 0
+                };
+            }
+        }
+
+        // ==========================================
+        // INICIALIZACIÓN
+        // ==========================================
+        let counter;
+        document.addEventListener('DOMContentLoaded', () => {
+            counter = new JumpCounter();
+        });
+    </script>
+</body>
+
+</html>
