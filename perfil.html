@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear perfil | Proyecto Fénix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-white min-h-screen">
+
+    <nav class="relative flex items-center justify-center px-5 py-2 w-full bg-black overflow-hidden">
+        <!-- Fondo fuego animado (sutil) -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-phoenix-500/10 to-transparent"></div>
+
+        <!-- Línea inferior fuego -->
+        <div
+            class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-phoenix-400 to-transparent">
+        </div>
+
+        <!-- Logo -->
+        <img src="./assets/logo-minino.png" alt="Proyecto Fénix"
+            class="relative h-8 w-auto drop-shadow-[0_0_15px_rgba(255,90,0,0.45)]" />
+    </nav>
+
+
+    <div id="publicLinks"  class="hidden relative flex items-center justify-center px-5 w-full overflow-hidden border border-b border-gray-200 shadow-sm mb-4">
+        <div class="w-full bg-white border-b border-gray-200">
+            <div class="max-w-6xl mx-auto flex items-center justify-end space-x-2 px-2 py-2 text-sm">
+
+                <a href="./login.html" class="text-gray-500 font-bold hover:text-orange-500 transition">iniciar sesión</a>
+                <a href="./registro.html" class="text-gray-500 font-bold hover:text-orange-500 transition">registro</a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Links privados -->
+    <div id="privateLinks" class="hidden relative flex items-center justify-center px-5 w-full overflow-hidden border border-b border-gray-200 shadow-sm bg-gray-50 py-3 space-x-4 mb-4">
+        <a href="index.html" class="text-gray-700 hover:text-orange-500 transition">
+            Inicio
+        </a>
+        <a href="perfil.html" class="text-gray-700 hover:text-orange-500 transition">Perfil</a>
+        <button id="logoutBtn" class="text-red-500 hover:text-red-600 transition">
+            Salir
+        </button>
+    </div>
+
+
+    <!-- PERFIL -->
+
+    <div class="flex items-center justify-start flex-1 px-4 mb-4">
+        <p>
+            Usuario:
+            <span id="usernameText" class="font-bold text-red-500"></span>
+        </p>
+    </div>
+
+
+    <div class="flex items-center justify-center flex-1 px-4">
+        <form id="profileForm" class="w-full max-w-sm bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200">
+
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-6">
+            Crea tu perfil
+        </h1>
+
+        <input type="text" id="username" placeholder="Nombre de usuario" required
+            class="w-full mb-6 px-3 py-2 sm:py-3 text-sm sm:text-base rounded-md bg-white text-gray-900 border border-gray-300 focus:ring-2 focus:ring-orange-400 outline-none">
+
+        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 sm:py-3 text-sm sm:text-base rounded-md font-semibold transition">
+            Guardar perfil
+        </button>
+
+    </form>
+    </div>
+
+</body>
+
+
+</html>
+
+
+
+<script type="module" src="./js/components/nav.js"></script>
+<script type="module" src="./js/components/perfil.js"></script>
