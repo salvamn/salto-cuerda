@@ -74,10 +74,76 @@
         </button>
     </div>
 
-    <div class="m-4 flex flex-col">
+    <!-- <div class="m-4 flex flex-col">
         <a href="./modules/cuerda/contadorSaltos.html" class="text-blue-500">Contador de Saltos</a>
         <a href="./modules/cuerda/temporizador.html" class="text-blue-500">Temporizador</a>
-    </div>
+    </div> -->
+
+    <!-- Calendar Section -->
+    <section class="px-4 py-8 bg-gradient-to-b from-gray-50 to-white">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header con navegación de meses -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div class="flex items-center justify-between mb-6">
+                    <button id="prevMonth"
+                        class="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-lg transition transform hover:scale-105">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg>
+                    </button>
+                    <div class="text-center">
+                        <h2 id="monthYear" class="text-2xl md:text-3xl font-bold text-gray-900"></h2>
+                        <p class="text-gray-500 text-sm mt-1">Seguimiento de tus entrenamientos</p>
+                    </div>
+                    <button id="nextMonth"
+                        class="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-lg transition transform hover:scale-105">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Días de la semana -->
+                <div class="grid grid-cols-7 gap-2 md:gap-3 mb-4">
+                    <div class="text-center font-bold text-gray-600 py-2 text-sm md:text-base">Lun</div>
+                    <div class="text-center font-bold text-gray-600 py-2 text-sm md:text-base">Mar</div>
+                    <div class="text-center font-bold text-gray-600 py-2 text-sm md:text-base">Mié</div>
+                    <div class="text-center font-bold text-gray-600 py-2 text-sm md:text-base">Jue</div>
+                    <div class="text-center font-bold text-gray-600 py-2 text-sm md:text-base">Vie</div>
+                    <div class="text-center font-bold text-gray-600 py-2 text-sm md:text-base">Sáb</div>
+                    <div class="text-center font-bold text-gray-600 py-2 text-sm md:text-base">Dom</div>
+                </div>
+
+                <!-- Calendario -->
+                <div id="calendar" class="grid grid-cols-7 gap-2 md:gap-3"></div>
+            </div>
+
+            <!-- Leyenda -->
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="font-bold text-gray-900 mb-3">Leyenda</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-gray-200 rounded"></div>
+                        <span class="text-sm text-gray-600">Sin datos</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-green-100 border-2 border-green-300 rounded"></div>
+                        <span class="text-sm text-gray-600">Entrenó</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-red-100 border-2 border-red-300 rounded"></div>
+                        <span class="text-sm text-gray-600">No entrenó</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-gray-400 rounded"></div>
+                        <span class="text-sm text-gray-600">Otro mes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 
 
@@ -91,7 +157,8 @@
 
 
 
-<script type="module" src="./js/components/nav.js">
+<script type="module" src="./js/components/nav.js"></script>
+<script type="module" src="./js/components/calendario.js"></script>
 
 
 

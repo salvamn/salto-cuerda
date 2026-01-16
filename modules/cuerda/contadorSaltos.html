@@ -243,60 +243,87 @@
     </style>
 </head>
 
-<body class="overflow-x-hidden">
+<body class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <!-- Navbar -->
+    <nav class="relative flex items-center justify-between px-5 py-3 w-full bg-black overflow-hidden shadow-md">
+        <!-- Fondo fuego animado (sutil) -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/10 to-transparent"></div>
+
+        <!-- Línea inferior fuego -->
+        <div
+            class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-orange-400 to-transparent">
+        </div>
+
+        <!-- Botón volver -->
+        <a href="../../panelAdministracion.html" class="relative text-white hover:text-orange-400 transition z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </a>
+
+        <!-- Título -->
+        <h1 class="relative text-white font-bold text-lg z-10">🎯 Contador de Saltos</h1>
+
+        <!-- Espacio vacío para balance -->
+        <div class="w-6"></div>
+    </nav>
+
     <div class="container mx-auto px-4 py-6 max-w-2xl">
 
         <!-- Header -->
         <header class="text-center mb-6 animate-slide-up">
-            <h1 class="text-3xl font-bold text-slate-800 mb-2">🎯 Contador de Saltos Pro</h1>
-            <p class="text-slate-600">Entrena inteligente, salta más</p>
+            <h2 class="text-2xl font-bold text-gray-900 mb-1">Entrena Hoy</h2>
+            <p class="text-gray-500 text-sm">Registra tus saltos y mejora tu progreso</p>
         </header>
 
         <!-- Tabs de modo -->
-        <div class="flex gap-2 mb-6 bg-slate-200/60 rounded-xl p-2">
+        <div class="flex gap-2 mb-6 bg-gray-100 rounded-lg p-2">
             <button id="tabManual"
-                class="flex-1 py-3 rounded-lg font-semibold text-slate-800 transition-all tab-active text-sm">
+                class="flex-1 py-2 px-3 rounded-lg font-semibold text-gray-700 transition-all tab-active text-sm bg-white border-b-2 border-orange-500 shadow-sm">
                 Manual
             </button>
-            <button id="tabRhythm" class="flex-1 py-3 rounded-lg font-semibold text-slate-500 transition-all text-sm">
+            <button id="tabRhythm"
+                class="flex-1 py-2 px-3 rounded-lg font-semibold text-gray-500 transition-all text-sm hover:bg-gray-50">
                 Ritmo
             </button>
-            <button id="tabBlocks" class="flex-1 py-3 rounded-lg font-semibold text-slate-500 transition-all text-sm">
+            <button id="tabBlocks"
+                class="flex-1 py-2 px-3 rounded-lg font-semibold text-gray-500 transition-all text-sm hover:bg-gray-50">
                 Bloques
             </button>
-            <button id="tabHistory" class="flex-1 py-3 rounded-lg font-semibold text-slate-500 transition-all text-sm">
+            <button id="tabHistory"
+                class="flex-1 py-2 px-3 rounded-lg font-semibold text-gray-500 transition-all text-sm hover:bg-gray-50">
                 📊 Historial
             </button>
         </div>
 
         <!-- Métricas en tiempo real -->
         <div id="metricsBar" class="grid grid-cols-3 gap-3 mb-6 animate-slide-up">
-            <div class="metric-card rounded-xl p-3 shadow-md text-center">
-                <p class="text-slate-500 text-xs font-semibold mb-1">TOTAL</p>
-                <p id="totalJumps" class="text-2xl font-black text-emerald-600">0</p>
+            <div class="metric-card rounded-lg p-4 shadow-md text-center bg-white border-l-4 border-orange-500">
+                <p class="text-gray-500 text-xs font-semibold mb-1">TOTAL</p>
+                <p id="totalJumps" class="text-2xl font-black text-orange-600">0</p>
             </div>
-            <div class="metric-card rounded-xl p-3 shadow-md text-center">
-                <p class="text-slate-500 text-xs font-semibold mb-1">SPM</p>
+            <div class="metric-card rounded-lg p-4 shadow-md text-center bg-white border-l-4 border-blue-500">
+                <p class="text-gray-500 text-xs font-semibold mb-1">SPM</p>
                 <p id="spmDisplay" class="text-2xl font-black text-blue-600">0</p>
             </div>
-            <div class="metric-card rounded-xl p-3 shadow-md text-center">
-                <p class="text-slate-500 text-xs font-semibold mb-1">MEJOR</p>
-                <p id="bestRhythm" class="text-2xl font-black text-amber-600">0</p>
+            <div class="metric-card rounded-lg p-4 shadow-md text-center bg-white border-l-4 border-green-500">
+                <p class="text-gray-500 text-xs font-semibold mb-1">MEJOR</p>
+                <p id="bestRhythm" class="text-2xl font-black text-green-600">0</p>
             </div>
         </div>
 
         <!-- Panel Modo Manual -->
         <div id="panelManual" class="animate-slide-up">
             <!-- Contador principal -->
-            <div class="bg-white rounded-3xl p-8 shadow-xl mb-6 text-center">
-                <p class="text-slate-500 text-sm font-semibold mb-2">SALTOS</p>
-                <div id="counterDisplay" class="counter-display text-slate-800">0</div>
+            <div class="bg-white rounded-2xl p-8 shadow-lg mb-6 text-center border-t-4 border-orange-500">
+                <p class="text-gray-500 text-sm font-semibold mb-2">SALTOS REGISTRADOS</p>
+                <div id="counterDisplay" class="counter-display text-orange-600">0</div>
             </div>
 
             <!-- Botón +1 gigante -->
             <div class="flex justify-center mb-6">
                 <button id="addOneBtn"
-                    class="btn-mega bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-2xl hover:shadow-emerald-500/50 transition-all">
+                    class="btn-mega bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-2xl hover:shadow-orange-500/50 transition-all">
                     <span class="text-6xl">+1</span>
                 </button>
             </div>
