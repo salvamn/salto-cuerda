@@ -243,32 +243,43 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-    <!-- Navbar -->
-    <nav class="relative flex items-center justify-between px-5 py-3 w-full bg-black overflow-hidden shadow-md">
+<body class="min-h-screen">
+
+    <nav class="relative flex items-center justify-center px-5 py-2 w-full bg-black overflow-hidden">
         <!-- Fondo fuego animado (sutil) -->
-        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/10 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-phoenix-500/10 to-transparent"></div>
 
         <!-- Línea inferior fuego -->
         <div
-            class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-orange-400 to-transparent">
+            class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-phoenix-400 to-transparent">
         </div>
 
-        <!-- Botón volver -->
-        <a href="../../panelAdministracion.html" class="relative text-white hover:text-orange-400 transition z-10">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-        </a>
-
-        <!-- Título -->
-        <h1 class="relative text-white font-bold text-lg z-10">🎯 Contador de Saltos</h1>
-
-        <!-- Espacio vacío para balance -->
-        <div class="w-6"></div>
+        <!-- Logo -->
+        <img src="../../assets/logo-minino.png" alt="Proyecto Fénix"
+            class="relative h-8 w-auto drop-shadow-[0_0_15px_rgba(255,90,0,0.45)]" />
     </nav>
 
-    <div class="container mx-auto px-4 py-6 max-w-2xl">
+    <div id="publicLinks"
+        class="hidden relative flex items-center justify-center px-5 w-full overflow-hidden border border-bottom border-gray-200 shadow-sm">
+        <div class="w-full bg-charcoal border-b border-phoenix-400/20">
+            <div class="max-w-6xl mx-auto flex items-center justify-end space-x-2 px-2 py-2 text-sm">
+                <a href="../../login.html" class="text-gray-500 font-bold">iniciar sesión</a>
+                <a href="../../registro.html" class="text-gray-500 font-bold">registro</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Links privados -->
+    <div id="privateLinks"
+        class="hidden relative flex items-center justify-center px-5 w-full overflow-hidden border border-bottom border-gray-200 shadow-sm bg-gray-50 py-3 space-x-4">
+        <a href="../../panelAdministracion.html"><img class="w-auto h-10 active:scale-110" src="../../assets/go.png"
+                alt=""></a>
+        <a href="../../index.html" class="text-steel-300 hover:text-phoenix-400">Inicio</a>
+        <a href="../../perfil.html">Perfil</a>
+        <button id="logoutBtn" class="text-ember-500 hover:text-ember-400">Salir</button>
+    </div>
+
+    <div class="container mx-auto px-4 py-6 max-w-2xl overflow-x-hidden">
 
         <!-- Header -->
         <header class="text-center mb-6 animate-slide-up">
@@ -1205,6 +1216,8 @@
             counter = new JumpCounter();
         });
     </script>
+
+    <script type="module" src="../../js/components/nav.js"></script>
 </body>
 
 </html>
